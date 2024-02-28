@@ -1,0 +1,13 @@
+[config]
+port = 3000							# http api port (Default 80)
+enable_gui = true				# enable frontend (Default false)
+hostname = "somehost"		# set hostname (Default hostname of host)
+
+[prometheus]
+enabled = true					# enable prometheus exports (Default false)
+prom_port = 81					# prometheus exports port (Default 81)
+
+[cluster]
+nodes = [ 							# List of servers to get data from
+	"localhost:3001",
+]

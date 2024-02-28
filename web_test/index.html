@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <code class="code"></code>
+    <script>
+      const sse = new EventSource("/sse");
+
+      sse.onmessage = (evt) => {
+        const el = document.querySelector(".code")
+        el.textContent = ""
+        el.textContent = evt.data;
+      };
+    </script>
+  </body>
+</html>

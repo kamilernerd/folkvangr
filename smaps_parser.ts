@@ -1,5 +1,5 @@
 type SmapsInfo = {
-  value: number;
+  value: any;
   unit: string;
 };
 
@@ -23,10 +23,16 @@ export default function PidSmapsParse(raw: string): Retval {
       continue;
     }
 
-    const value = typeof parts[1] === "undefined" ? 0 : parseInt(parts[1]);
+    let value;
+    if (typeof parts[1] === "string" && isNaN(parts[1] as any)) {
+      value = parts[1];
+    } else {
+      value = parseInt(parts[1]);
+    }
+
     const unit = typeof parts[2] === "undefined" ? "" : parts[2];
 
-    if (t[parts[0]] && t[parts[0]]) {
+    if (t[parts[0]]) {
       t[parts[0]].value += value;
     } else {
       t[parts[0]] = {
