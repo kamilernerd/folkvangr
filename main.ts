@@ -7,12 +7,11 @@ import {
 } from "https://deno.land/x/oak@v13.2.5/mod.ts";
 import { loadConfig } from "./config.ts";
 // import { exporter } from "./prometheus_exporter.ts";
-import { EventEmitter } from "https://deno.land/std@0.110.0/node/events.ts";
 
 export const config = loadConfig()
 export const data_pipe = new BroadcastChannel("data_pipe")
 
-const eventEmitter = new EventEmitter()
+let data = [];
 
 export async function main() {
   const processWatcherWorker = new Worker(
@@ -23,7 +22,10 @@ export async function main() {
   );
 
 	data_pipe.onmessage = async (e) => {
-		eventEmitter.emit("data", e.data)
+		data = e.data
+		data_pipe.dispatchEvent(new CustomEvent("data", {
+			detail: e.data
+		}))
 	}
 
   if (config.config.enable_gui) {
@@ -47,15 +49,25 @@ export async function main() {
         Status.UnsupportedMediaType,
       );
 
-      const target = ctx.sendEvents();
-
-			eventEmitter.on("data", (e) => {
+			const httpSSEhandler = (e) => {
 		 		const evt = new ServerSentEvent(
           "message",
-          { data: { ...e } },
+          {
+						data: {
+							pids: e.detail[0],
+							system: e.detail[1]
+						}
+					},
         );
         target.dispatchEvent(evt);
-			})
+			}
+
+      const target = ctx.sendEvents();
+			data_pipe.addEventListener("data", httpSSEhandler)
+			
+			target.addEventListener("close", () => {
+				data_pipe.removeEventListener("data", httpSSEhandler)
+      });
     });
 
     app.use(router.routes());
