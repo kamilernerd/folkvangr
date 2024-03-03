@@ -1,4 +1,5 @@
 import CpuinfoParse, { extractAndMergeCpuInfo } from "./cpuinfo_parser.ts";
+import { data_pipe } from "./main.ts";
 import MeminfoParse from "./meminfo_parser.ts";
 import {
   readCpuinfo,
@@ -26,15 +27,7 @@ function callback() {
   const parsedCpuInfo = CpuinfoParse(cpuinfo);
   const extractedCpuInfo = extractAndMergeCpuInfo(parsedCpuInfo);
 
-  self.postMessage({
-    source: "system",
-    values: {
-      cpu: extractedCpuInfo,
-      meminfo: parsedMeminfo,
-    },
-  });
-
-  let pidsMemUsageAll: any = [];
+	let pidsMemUsageAll: any = [];
   for (const pid in pids) {
     const p = readPidSmaps(pids[pid]);
     if (p === "") {
@@ -55,12 +48,21 @@ function callback() {
     });
   }
 
-  self.postMessage({
-    source: "pids",
-    values: pidsMemUsageAll,
-  });
+  data_pipe.postMessage([
+		{
+			source: "pids",
+			values: pidsMemUsageAll,
+		},
+		{
+			source: "system",
+			values: {
+				cpu: extractedCpuInfo,
+				meminfo: parsedMeminfo,
+			}
+		}
+  ]);
 
-  pidsMemUsageAll = [];
+	pidsMemUsageAll = [];
 
   setTimeout(callback, TIMEOUT);
 }

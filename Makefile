@@ -7,7 +7,7 @@ WORKER_PATH = proc_watcher_worker.ts
 
 run:
 	@echo "Running"	
-	@deno run --unstable-kv --allow-all main.ts
+	@deno run --unstable-kv --unstable-broadcast-channel --allow-all main.ts
 
 build:
 	@echo "Building..."	

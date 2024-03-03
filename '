@@ -7,12 +7,10 @@ import {
 } from "https://deno.land/x/oak@v13.2.5/mod.ts";
 import { loadConfig } from "./config.ts";
 // import { exporter } from "./prometheus_exporter.ts";
-import { EventEmitter } from "https://deno.land/std@0.110.0/node/events.ts";
 
 export const config = loadConfig()
-export const data_pipe = new BroadcastChannel("data_pipe")
 
-const eventEmitter = new EventEmitter()
+export const n = new BroadcastChannel("default")
 
 export async function main() {
   const processWatcherWorker = new Worker(
@@ -22,9 +20,19 @@ export async function main() {
     },
   );
 
-	data_pipe.onmessage = async (e) => {
-		eventEmitter.emit("data", e.data)
-	}
+  processWatcherWorker.onmessage = async (e) => {
+    if (e.data.source === "system") {
+      const system = {
+        meminfo: e.data.values.meminfo,
+        cpuinfo: e.data.values.cpu,
+      };
+      // await kv.set(["system"], system, { expireIn: 1 });
+    }
+
+    if (e.data.source === "pids") {
+      // await kv.set(["pids"], [e.data.values], { expireIn: 1 });
+    }
+  };
 
   if (config.config.enable_gui) {
     const port = config.config.port;
@@ -48,14 +56,20 @@ export async function main() {
       );
 
       const target = ctx.sendEvents();
-
-			eventEmitter.on("data", (e) => {
-		 		const evt = new ServerSentEvent(
+      const id = setInterval(async () => {
+        // const pids = await kv.get(["pids"]);
+        // const system = await kv.get(["system"]);
+        const evt = new ServerSentEvent(
           "message",
-          { data: { ...e } },
+          { data: { pids: pids.value, system: system.value } },
         );
+
         target.dispatchEvent(evt);
-			})
+      }, 2500);
+
+      target.addEventListener("close", () => {
+        clearInterval(id);
+      });
     });
 
     app.use(router.routes());
