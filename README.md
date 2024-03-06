@@ -4,6 +4,9 @@ metrics about memory and cpu usage. Exports data as prometheus metrics or json (
 It does it quite often, every 2 seconds.
 This doesn't calculate the CPU time but shows utilization for each core.
 
+Based on information gathered from
+[Linux kernel manpage](https://www.kernel.org/doc/Documentation/filesystems/proc.txt)
+
 # Configuration
 You can provide your configuration file using ```--config-path=/some/path/config.toml``` or just place the config file in the same directory where your binary is.
 If you don't provide ```config.toml``` configuration file default values are being used.
