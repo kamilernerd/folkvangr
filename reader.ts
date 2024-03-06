@@ -2,7 +2,6 @@ const files: Array<string> = [
   "/proc/meminfo", 		 // Memory stats
   "/proc/cpuinfo", 		 // CPU info
   "/proc/{pid}/smaps", // Pid maps (memory information)
-  "/proc/stat", 			 // Cpu utilization
 	"/proc/{pid}/exe", 	 // The symlink of process binary
 ];
 
@@ -72,7 +71,7 @@ export function readPidBinarySymlink(pid: number): string {
 		return pidBinary;
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
-      console.log(error);
+      // console.log(error);
       return "";
     }
   }
