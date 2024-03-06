@@ -18,16 +18,6 @@ export async function serve() {
 	}
 
 	if (config.enable_api) {
-		router
-			.get("/", async (ctx) => {
-				await ctx.send(
-					{
-						root: `${Deno.cwd()}/web_test`,
-						path: "index.html",
-					},
-				);
-			});
-
 		router.get("/sse", async (ctx: Context) => {
 			ctx.assert(
 				ctx.request.accepts("text/event-stream"),
