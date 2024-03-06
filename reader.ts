@@ -1,8 +1,9 @@
 const files: Array<string> = [
-  "/proc/meminfo", // Memory stats
-  "/proc/cpuinfo", // CPU info
+  "/proc/meminfo", 		 // Memory stats
+  "/proc/cpuinfo", 		 // CPU info
   "/proc/{pid}/smaps", // Pid maps (memory information)
-  "/proc/stat", // Cpu utilization
+  "/proc/stat", 			 // Cpu utilization
+	"/proc/{pid}/exe", 	 // The symlink of process binary
 ];
 
 export function readProcDir(): Array<string> {
@@ -63,3 +64,18 @@ export function readPidSmaps(pid: string): string {
   }
   return "";
 }
+
+export function readPidBinarySymlink(pid: number): string {
+  try {
+		const path = files[4].replace("{pid}", pid)
+		const pidBinary = Deno.readLinkSync(path)
+		return pidBinary;
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      console.log(error);
+      return "";
+    }
+  }
+  return ""
+}
+

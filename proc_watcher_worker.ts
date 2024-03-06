@@ -4,6 +4,7 @@ import MeminfoParse from "./meminfo_parser.ts";
 import {
   readCpuinfo,
   readMeminfo,
+  readPidBinarySymlink,
   readPidSmaps,
   readProcDir,
 } from "./reader.ts";
@@ -16,7 +17,7 @@ declare global {
 }
 
 // Timeout in ms
-const TIMEOUT = 2500;
+const TIMEOUT = 2000;
 
 function callback() {
   const pids = readProcDir();
@@ -28,6 +29,7 @@ function callback() {
   const extractedCpuInfo = extractAndMergeCpuInfo(parsedCpuInfo);
 
 	let pidsMemUsageAll: any = [];
+
   for (const pid in pids) {
     const p = readPidSmaps(pids[pid]);
     if (p === "") {
@@ -37,9 +39,11 @@ function callback() {
     // Pidstat is too big for Deno.kv to store
     // so we read only the values we need for each PID
     const pidStat = PidSmapsParse(p);
+		const bin = readPidBinarySymlink(pids[pid])
 
     pidsMemUsageAll.push({
       pid: pids[pid],
+			exe: bin,
       meminfo: {
         Size: pidStat["Size"].value,
         Rss: pidStat["Rss"].value,

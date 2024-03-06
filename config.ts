@@ -2,18 +2,9 @@ import { parse } from "https://deno.land/std@0.207.0/toml/mod.ts";
 import { parseArgs } from "https://deno.land/std@0.207.0/cli/parse_args.ts";
 
 type Config = {
-  config: {
-    port: number
-    enable_gui: boolean
-    hostname: string
-  }
-  cluster: {
-    nodes: Array<string>
-  }
-	prometheus: {
-		enabled: boolean
-		prom_port: number
-	}
+	port: number
+	enable_api: boolean
+	enable_prometheus: boolean
 }
 
 function findConfig(): string {
@@ -45,41 +36,16 @@ export function loadConfig(): Config {
   const config = findConfig() 
   const conf = parse(config) as Config
  
-  // Set config defaults if these options are missing from config file
-	if (!conf.config) {
-		conf.config = {}
-	}
-
-	if (!conf.prometheus) {
-		conf.prometheus = {}
-	}
-
-	if (!conf.cluster) {
-		conf.cluster = { nodes: [] }
-	}
-	
-  if (!conf.config.port) {
-    conf.config.port = 80;
+  if (!conf.port) {
+    conf.port = 80;
   }
 
-  if (!conf.config.hostname) {
-    conf.config.hostname = Deno.hostname()
+  if (!conf.enable_api) {
+    conf.enable_api = false
   }
 
-  if (!conf.config.enable_gui) {
-    conf.config.enable_gui = false
-  }
-
-	if (!conf.prometheus.enabled) {
-		conf.prometheus.enabled = false
-	}
-
-	if (!conf.prometheus.prom_port) {
-		conf.prometheus.prom_port = 81
-	}
-
-	if (!conf.cluster.nodes) {
-		conf.cluster.nodes = []
+	if (!conf.enable_prometheus) {
+		conf.enable_prometheus = false
 	}
 
   return conf
