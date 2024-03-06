@@ -1,7 +1,6 @@
 # /proc scraper
 This program scrapes /proc directory and gathers system-wide metrics and pid
 metrics about memory and cpu usage. Exports data as prometheus metrics or json (server sent events).
-It does it quite often, every 2 seconds.
 This doesn't calculate the CPU time but shows utilization for each core.
 
 Based on information gathered from
